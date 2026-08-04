@@ -1,6 +1,10 @@
 import Container from "@/components/layout/Container";
+import Adsense from "@/components/ads/Adsense";
+import { getPlano } from "@/modules/auth/planService";
 
 export default function Page() {
+  const plano = getPlano();
+  
   return (
     <Container>
       <section className="text-center py-20">
@@ -21,6 +25,14 @@ export default function Page() {
           Acessar Plataforma
         </a>
       </section>
+	  
+	  {
+		  //plano === "free" && <Adsense />
+	  }
+      {
+		  //plano !== "premium" && <Adsense />
+	  }
+	  <Adsense />
 
       <section className="grid md:grid-cols-3 gap-6 py-10">
         <div className="bg-white shadow p-6 rounded">
@@ -44,7 +56,7 @@ export default function Page() {
           </p>
         </div>
       </section>
-
+	  
       <section className="py-10">
         <h2 className="text-2xl font-bold mb-4">Por que Sima Labs?</h2>
         <ul className="list-disc pl-6 text-slate-700 space-y-2">
