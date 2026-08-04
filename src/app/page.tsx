@@ -1,8 +1,8 @@
 export default function Page() {
   return (
     <main>
-      <h1>TestCaseForge Premium</h1>
-      <p>Página inicial funcionando!</p>
+      <h1>Sima Labs</h1>
+	  <p>Bem-vindo à plataforma modular Sima Labs.</p>
     </main>
   );
 }

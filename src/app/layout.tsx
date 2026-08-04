@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "TestCaseForge Premium",
-  description: "Geração automática de casos de teste com IA",
+  title: "Sima Labs",
+  description: "Laboratório de idéias com IA",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
