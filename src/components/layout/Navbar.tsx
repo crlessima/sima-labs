@@ -10,6 +10,10 @@ export default function Navbar() {
         <a href="/dashboard/testcases" className="hover:text-blue-600">TestCases</a>
         <a href="/dashboard/calculadora" className="hover:text-blue-600">Calculadora</a>
         <a href="/dashboard/contratos" className="hover:text-blue-600">Contratos</a>
+
+        {/* Novo item do menu */}
+        <a href="/dashboard/historico" className="hover:text-blue-600">Histórico</a>
+
         <a href="/dashboard/premium" className="hover:text-blue-600">Premium</a>
       </div>
     </nav>

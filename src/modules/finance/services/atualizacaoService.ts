@@ -1,22 +1,66 @@
-import { buscarIPCA } from "./indicesService";
+import { buscarIPCA, buscarINPC, buscarSELIC, buscarCDI, buscarTR, buscarIGPM } from "./indicesService";
 import { atualizarValor } from "../utils/atualizacao";
 
+// Função antiga (mantemos para compatibilidade)
 export async function atualizarPorIPCA(valor: number, ano: string, mes: string) {
-  const indice = await buscarIPCA(ano, mes);
+    const indice = await buscarIPCA(ano, mes);
 
-  if (!indice) {
+    if (!indice) {
+        return {
+            sucesso: false,
+            mensagem: "Índice não encontrado para o período informado.",
+        };
+    }
+
+    const atualizado = atualizarValor(valor, indice);
+
     return {
-      sucesso: false,
-      mensagem: "Índice não encontrado para o período informado.",
+        sucesso: true,
+        indice,
+        valorOriginal: valor,
+        valorAtualizado: atualizado,
     };
-  }
+}
 
-  const atualizado = atualizarValor(valor, indice);
+// Função nova (a que o módulo Contratos usa)
+export async function atualizarValorPorIndice(valor: number, ano: string, mes: string, indice: string) {
+    let percentual = null;
 
-  return {
-    sucesso: true,
-    indice,
-    valorOriginal: valor,
-    valorAtualizado: atualizado,
-  };
+    switch (indice) {
+        case "IPCA":
+            percentual = await buscarIPCA(ano, mes);
+            break;
+        case "INPC":
+            percentual = await buscarINPC(ano, mes);
+            break;
+        case "SELIC":
+            percentual = await buscarSELIC(`${mes}/${ano}`);
+            break;
+        case "CDI":
+            percentual = await buscarCDI(`${mes}/${ano}`);
+            break;
+        case "TR":
+            percentual = await buscarTR(`${mes}/${ano}`);
+            break;
+        case "IGPM":
+            percentual = buscarIGPM(ano, mes);
+            break;
+    }
+
+    if (!percentual) {
+        return {
+            sucesso: false,
+            mensagem: "Índice não encontrado para o período informado."
+        };
+    }
+
+    const atualizado = atualizarValor(valor, percentual);
+
+    return {
+        sucesso: true,
+        indice,
+        percentual,
+        valorOriginal: valor,
+        valorAtualizado: atualizado
+    };
 }
