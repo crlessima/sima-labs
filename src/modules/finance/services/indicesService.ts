@@ -73,3 +73,16 @@ export async function buscarCDI(data: string) {
 export async function buscarTR(data: string) {
   return buscarBC(226, data);
 }
+
+// =========================
+// IGPM - FALTA IMPLEMENTAR TABELA FAKE LOCAL
+// =========================
+import igpm from "../data/igpm.json";
+
+export function buscarIGPM(ano: string, mes: string) {
+  try {
+    return igpm[ano][mes];
+  } catch {
+    return null;
+  }
+}
