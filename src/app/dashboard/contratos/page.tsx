@@ -5,6 +5,7 @@ import { useState } from "react";
 import { salvarContrato } from "@/modules/historico/services/historicoService";
 import { atualizarValorPorIndice } from "@/modules/finance/services/atualizacaoService";
 import { v4 as uuid } from "uuid";
+import { gerarPDFContrato } from "@/modules/pdf/pdfService";
 
 export default function ContratosPage() {
   const [nome, setNome] = useState("");
@@ -129,6 +130,18 @@ As partes concordam com os termos acima e firmam este contrato.
         >
           Gerar Contrato
         </button>
+		
+		{resultado && (
+		  <button
+			onClick={() => {
+			  const pdf = gerarPDFContrato(resultado);
+			  pdf.save("contrato.pdf");
+			}}
+			className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+		  >
+			Baixar PDF
+		  </button>
+		)}		
 
         {/* Resultado */}
         {resultado && (
