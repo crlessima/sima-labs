@@ -50,9 +50,9 @@ export default function HistoricoPage() {
     .sort((a, b) => {
       switch (ordenacao) {
         case "data_desc":
-          return new Date(b.criadoEm) - new Date(a.criadoEm);
+		  return new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime();
         case "data_asc":
-          return new Date(a.criadoEm) - new Date(b.criadoEm);
+		  return new Date(a.criadoEm).getTime() - new Date(b.criadoEm).getTime();
         case "nome_asc":
           return a.nome.localeCompare(b.nome);
         case "nome_desc":
