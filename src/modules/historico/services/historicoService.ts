@@ -18,3 +18,24 @@ export function buscarContrato(id: string): Contrato | null {
   const lista = listarContratos();
   return lista.find((c) => c.id === id) || null;
 }
+
+export function excluirContrato(id: string) {
+  const contratos = listarContratos();
+  const filtrados = contratos.filter((c) => c.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtrados));
+}
+
+export function duplicarContrato(id: string) {
+  const contratos = listarContratos();
+  const contrato = contratos.find((c) => c.id === id);
+  if (!contrato) return;
+
+  const novo = {
+    ...contrato,
+    id: crypto.randomUUID(),
+    criadoEm: new Date().toISOString(),
+  };
+
+  contratos.push(novo);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(contratos));
+}

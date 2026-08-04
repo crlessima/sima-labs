@@ -1,20 +1,27 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 export default function Navbar() {
+  const pathname = usePathname();
+
+  const linkClass = (href: string) =>
+    `hover:text-blue-600 ${
+      pathname === href ? "text-blue-600 font-semibold" : "text-slate-700"
+    }`;
+
   return (
     <nav className="w-full bg-white shadow-sm px-6 py-4 flex justify-between items-center">
       <h1 className="text-xl font-bold text-blue-600">Sima Labs</h1>
 
       <div className="flex gap-6 text-sm">
-        <a href="/" className="hover:text-blue-600">Home</a>
-        <a href="/dashboard/testcases" className="hover:text-blue-600">TestCases</a>
-        <a href="/dashboard/calculadora" className="hover:text-blue-600">Calculadora</a>
-        <a href="/dashboard/contratos" className="hover:text-blue-600">Contratos</a>
-
-        {/* Novo item do menu */}
-        <a href="/dashboard/historico" className="hover:text-blue-600">Histórico</a>
-
-        <a href="/dashboard/premium" className="hover:text-blue-600">Premium</a>
+        <Link href="/" className={linkClass("/")}>Home</Link>
+        <Link href="/dashboard/testcases" className={linkClass("/dashboard/testcases")}>TestCases</Link>
+        <Link href="/dashboard/calculadora" className={linkClass("/dashboard/calculadora")}>Calculadora</Link>
+        <Link href="/dashboard/contratos" className={linkClass("/dashboard/contratos")}>Contratos</Link>
+        <Link href="/dashboard/historico" className={linkClass("/dashboard/historico")}>Histórico</Link>
+        <Link href="/dashboard/premium" className={linkClass("/dashboard/premium")}>Premium</Link>
       </div>
     </nav>
   );
