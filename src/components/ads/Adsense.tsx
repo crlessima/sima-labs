@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 
 export default function Adsense() {
   const [loaded, setLoaded] = useState(false);
+  declare global {
+    interface Window {
+      adsbygoogle: any[];
+    }
+  }
 
   useEffect(() => {
     if (!loaded) {
