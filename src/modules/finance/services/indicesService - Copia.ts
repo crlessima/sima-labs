@@ -3,6 +3,7 @@
 // =========================
 export async function buscarIPCA(ano: string, mes: string) {
   const periodo = `${ano}${mes.padStart(2, "0")}`;
+
   const url = `https://servicodados.ibge.gov.br/api/v3/agregados/1737/periodos/${periodo}/variaveis/63?localidades=N1`;
 
   const response = await fetch(url);
@@ -21,6 +22,7 @@ export async function buscarIPCA(ano: string, mes: string) {
 // =========================
 export async function buscarINPC(ano: string, mes: string) {
   const periodo = `${ano}${mes.padStart(2, "0")}`;
+
   const url = `https://servicodados.ibge.gov.br/api/v3/agregados/1735/periodos/${periodo}/variaveis/44?localidades=N1`;
 
   const response = await fetch(url);
@@ -43,9 +45,11 @@ async function buscarBC(codigo: number, data: string) {
   const response = await fetch(url);
   const json = await response.json();
 
+  // Se não for array, retorna null
   if (!Array.isArray(json)) return null;
 
   const item = json.find((i: any) => i.data === data);
+
   return item ? Number(item.valor) : null;
 }
 
@@ -71,7 +75,7 @@ export async function buscarTR(data: string) {
 }
 
 // =========================
-// IGPM (tabela local)
+// IGPM - FALTA IMPLEMENTAR TABELA FAKE LOCAL
 // =========================
 import igpm from "../data/igpm.json";
 
@@ -81,56 +85,4 @@ export function buscarIGPM(ano: string, mes: string) {
   } catch {
     return null;
   }
-}
-
-// =========================
-// Série histórica para calculadora
-// =========================
-
-export type TipoIndice = "IPCA" | "INPC" | "IGPM" | "SELIC" | "CDI" | "TR";
-
-function gerarListaMeses(dataInicio: Date, dataFim: Date) {
-  const meses = [];
-  const atual = new Date(dataInicio.getFullYear(), dataInicio.getMonth(), 1);
-
-  while (atual <= dataFim) {
-    const ano = String(atual.getFullYear());
-    const mes = String(atual.getMonth() + 1).padStart(2, "0");
-
-    meses.push({ ano, mes, data: `${ano}-${mes}` });
-
-    atual.setMonth(atual.getMonth() + 1);
-  }
-
-  return meses;
-}
-
-export async function obterSerieIndice(
-  indice: TipoIndice,
-  dataInicio: Date,
-  dataFim: Date
-) {
-  const meses = gerarListaMeses(dataInicio, dataFim);
-  const serie: { data: string; valor: number }[] = [];
-
-  for (const m of meses) {
-    let valor = null;
-
-    if (indice === "IPCA") valor = await buscarIPCA(m.ano, m.mes);
-    if (indice === "INPC") valor = await buscarINPC(m.ano, m.mes);
-    if (indice === "IGPM") valor = buscarIGPM(m.ano, m.mes);
-
-    if (indice === "SELIC") valor = await buscarSELIC(`${m.mes}/${m.ano}`);
-    if (indice === "CDI") valor = await buscarCDI(`${m.mes}/${m.ano}`);
-    if (indice === "TR") valor = await buscarTR(`${m.mes}/${m.ano}`);
-
-    if (valor !== null) {
-      serie.push({
-        data: m.data,
-        valor,
-      });
-    }
-  }
-
-  return serie;
 }
