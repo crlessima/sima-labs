@@ -63,7 +63,7 @@ async function calcularCorrecaoMonetaria(
   indice: TipoIndice,
   dataInicio: Date,
   dataFim: Date
-): { valorCorrigido: number; memoriaIndices: MemoriaIndice[] } {
+): Promise<{ valorCorrigido: number; memoriaIndices: MemoriaIndice[] }> {
 
   const serie = await obterSerieIndice(indice, dataInicio, dataFim);
 
@@ -85,6 +85,7 @@ async function calcularCorrecaoMonetaria(
 
   return { valorCorrigido, memoriaIndices: memoria };
 }
+
 
 
 function calcularJuros(
