@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import Container from "@/components/layout/Container";
-
+import {
+  calcularAtualizacao,
+  TipoIndice1,
+  PeriodicidadeJuros,
+  TipoJuros,
+  ResultadoCalculo,
+} from "@/modules/calculadora/services/calculadoraService";
 import { obterSerieIndice, TipoIndice } from "@/modules/finance/services/indicesService";
 
 import { getPlano } from "@/modules/auth/planService";
