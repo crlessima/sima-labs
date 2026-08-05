@@ -4,12 +4,12 @@ import { useState } from "react";
 import Container from "@/components/layout/Container";
 import {
   calcularAtualizacao,
-  TipoIndice1,
   PeriodicidadeJuros,
   TipoJuros,
   ResultadoCalculo,
 } from "@/modules/calculadora/services/calculadoraService";
-import { obterSerieIndice, TipoIndice } from "@/modules/finance/services/indicesService";
+
+import { TipoIndice } from "@/modules/finance/services/indicesService";
 
 import { getPlano } from "@/modules/auth/planService";
 import Adsense from "@/components/ads/Adsense";
@@ -26,7 +26,7 @@ export default function CalculadoraPage() {
   const [tipoJuros, setTipoJuros] = useState<TipoJuros>("composto");
 
   const [resultado, setResultado] = useState<ResultadoCalculo | null>(null);
-  
+
   const plano = getPlano();
 
   async function handleCalcular() {
@@ -49,6 +49,7 @@ export default function CalculadoraPage() {
     const res = await calcularAtualizacao(params);
     setResultado(res);
   }
+
 
   return (
     <Container>
