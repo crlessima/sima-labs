@@ -23,7 +23,7 @@ export async function atualizarPorIPCA(valor: number, ano: string, mes: string) 
 }
 
 // Função nova (a que o módulo Contratos usa)
-export async function atualizarValorPorIndice(valor: number, ano: string, mes: string, indice: string) {
+export async function atualizarValorPorIndice(valor: number, ano: string, mes: string, dia?: string, indice: string) {
     let percentual = null;
 
     switch (indice) {
@@ -34,13 +34,13 @@ export async function atualizarValorPorIndice(valor: number, ano: string, mes: s
             percentual = await buscarINPC(ano, mes);
             break;
         case "SELIC":
-            percentual = await buscarSELIC(`${mes}/${ano}`);
+            percentual = await buscarSELIC(`${dia}/${mes}/${ano}`);
             break;
         case "CDI":
-            percentual = await buscarCDI(`${mes}/${ano}`);
+            percentual = await buscarCDI(`${dia}/${mes}/${ano}`);
             break;
         case "TR":
-            percentual = await buscarTR(`${mes}/${ano}`);
+            percentual = await buscarTR(`${dia}/${mes}/${ano}`);
             break;
         case "IGPM":
             percentual = buscarIGPM(ano, mes);

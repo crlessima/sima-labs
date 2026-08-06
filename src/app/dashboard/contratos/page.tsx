@@ -15,12 +15,13 @@ export default function ContratosPage() {
 
   const [ano, setAno] = useState("");
   const [mes, setMes] = useState("");
+  const [dia, setDia] = useState("");
   const [indice, setIndice] = useState("IPCA");
 
   async function gerarContrato() {
     const valorNum = Number(valor);
 
-    const atualizacao = await atualizarValorPorIndice(valorNum, ano, mes, indice);
+    const atualizacao = await atualizarValorPorIndice(valorNum, ano, mes, dia, indice);
 
     if (!atualizacao.sucesso) {
       setResultado("Erro ao buscar índice financeiro.");
@@ -106,6 +107,15 @@ As partes concordam com os termos acima e firmam este contrato.
           className="border p-2 rounded"
           value={mes}
           onChange={(e) => setMes(e.target.value)}
+        />
+
+        {/* Dia */}
+        <label className="font-semibold">Dia (1 a 31)</label>
+        <input
+          type="number"
+          className="border p-2 rounded"
+          value={dia}
+          onChange={(e) => setDia(e.target.value)}
         />
 
         {/* Índice */}
