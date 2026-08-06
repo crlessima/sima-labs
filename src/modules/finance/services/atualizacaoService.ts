@@ -34,13 +34,13 @@ export async function atualizarValorPorIndice(valor: number, ano: string, mes: s
             percentual = await buscarINPC(ano, mes);
             break;
         case "SELIC":
-            percentual = await buscarSELIC(`${dia}/${mes}/${ano}`);
+            percentual = await buscarSELIC(ano, mes, dia);
             break;
         case "CDI":
-            percentual = await buscarCDI(`${dia}/${mes}/${ano}`);
+            percentual = await buscarCDI(ano, mes, dia);
             break;
         case "TR":
-            percentual = await buscarTR(`${dia}/${mes}/${ano}`);
+            percentual = await buscarTR(ano, mes, dia);
             break;
         case "IGPM":
             percentual = buscarIGPM(ano, mes);
