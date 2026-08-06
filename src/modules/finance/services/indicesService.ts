@@ -1,3 +1,4 @@
+console.log("ARQUIVO CORRETO: indicesService.ts");
 // =========================
 // IPCA (IBGE)
 // =========================
@@ -21,72 +22,82 @@ export async function buscarIPCA(ano: string, mes: string) {
 // =========================
 export async function buscarINPC(ano: string, mes: string) {
   const periodo = `${ano}${mes.padStart(2, "0")}`;
-  const url = `https://servicodados.ibge.gov.br/api/v3/agregados/1735/periodos/${periodo}/variaveis/44?localidades=N1`;
+  const url = `https://servicodados.ibge.gov.br/api/v3/agregados/1736/periodos/${periodo}/variaveis/44?localidades=N1`;
 
   const response = await fetch(url);
   const json = await response.json();
 
   try {
-    const valor = json[0].resultados[0].series[0].serie[periodo];
-    return Number(valor);
+    const serie = json?.[0]?.resultados?.[0]?.series?.[0]?.serie;
+    if (!serie || !serie[periodo]) return null;
+    return Number(serie[periodo]);
   } catch {
     return null;
   }
 }
 
 // =========================
-// Função auxiliar para APIs do Banco Central
+// Banco Central (SELIC, CDI, TR)
 // =========================
-async function buscarBC(codigo: number, data: string) {
-  const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados?formato=json`;
+async function buscarBC(codigo: number, ano: string, mes: string, dia?: string) {
+  const diaValido = dia ?? "01"; // fallback seguro
+
+  const dataBC = `${diaValido}/${mes}/${ano}`;
+  const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados?formato=json&dataInicial=${dataBC}&dataFinal=${dataBC}`;
 
   const response = await fetch(url);
   const json = await response.json();
 
-  if (!Array.isArray(json)) return null;
+  if (!Array.isArray(json) || json.length === 0) return null;
 
-  const item = json.find((i: any) => i.data === data);
-  return item ? Number(item.valor) : null;
+  return Number(json[0].valor);
 }
 
-// =========================
-// SELIC (código 11)
-// =========================
-export async function buscarSELIC(data: string) {
-  return buscarBC(11, data);
+
+export async function buscarSELIC(ano: string, mes: string, dia?: string) {
+  return buscarBC(11, ano, mes, dia);
 }
 
-// =========================
-// CDI (código 12)
-// =========================
-export async function buscarCDI(data: string) {
-  return buscarBC(12, data);
+export async function buscarCDI(ano: string, mes: string, dia?: string) {
+  return buscarBC(12, ano, mes, dia);
 }
 
-// =========================
-// TR (código 226)
-// =========================
-export async function buscarTR(data: string) {
-  return buscarBC(226, data);
+export async function buscarTR(ano: string, mes: string, dia?: string) {
+  return buscarBC(226, ano, mes, dia);
 }
 
+
 // =========================
-// IGPM (tabela local)
+// IGPM (arquivo local)
 // =========================
 import igpm from "../data/igpm.json";
 
-export function buscarIGPM(ano: string, mes: string) {
+export async function buscarIGPM(ano: string, mes: string) {
   try {
-    return igpm[ano][mes];
-  } catch {
+    const anoData = igpm?.[ano];
+
+    if (!anoData) {
+      console.warn(`IGPM: ano ${ano} não encontrado no JSON`);
+      return null;
+    }
+
+    const valor = anoData?.[mes];
+
+    if (valor === undefined) {
+      console.warn(`IGPM: mês ${mes}/${ano} não encontrado no JSON`);
+      return null;
+    }
+
+    return Number(valor);
+  } catch (e) {
+    console.error("Erro ao buscar IGPM:", e);
     return null;
   }
 }
 
 // =========================
-// Série histórica para calculadora
+// Tipos
 // =========================
-
 export type TipoIndice = "IPCA" | "INPC" | "IGPM" | "SELIC" | "CDI" | "TR";
 
 function gerarListaMeses(dataInicio: Date, dataFim: Date) {
@@ -105,32 +116,51 @@ function gerarListaMeses(dataInicio: Date, dataFim: Date) {
   return meses;
 }
 
+// =========================
+// Série histórica com diagnóstico
+// =========================
 export async function obterSerieIndice(
   indice: TipoIndice,
   dataInicio: Date,
   dataFim: Date
 ) {
   const meses = gerarListaMeses(dataInicio, dataFim);
+
   const serie: { data: string; valor: number }[] = [];
+  const periodosEncontrados: string[] = [];
+  const periodosSemDados: string[] = [];
+
+  console.log("teste!");
 
   for (const m of meses) {
-    let valor = null;
+    const dia = m.data.split("-")[2] ?? "01"; // se não tiver dia, usa 01
+
+    let valor: number | null = null;
 
     if (indice === "IPCA") valor = await buscarIPCA(m.ano, m.mes);
     if (indice === "INPC") valor = await buscarINPC(m.ano, m.mes);
-    if (indice === "IGPM") valor = buscarIGPM(m.ano, m.mes);
+    if (indice === "IGPM") valor = await buscarIGPM(m.ano, m.mes);
 
-    if (indice === "SELIC") valor = await buscarSELIC(`${m.mes}/${m.ano}`);
-    if (indice === "CDI") valor = await buscarCDI(`${m.mes}/${m.ano}`);
-    if (indice === "TR") valor = await buscarTR(`${m.mes}/${m.ano}`);
+    if (indice === "SELIC") valor = await buscarSELIC(m.ano, m.mes, dia);
+    if (indice === "CDI") valor = await buscarCDI(m.ano, m.mes, dia);
+    if (indice === "TR") valor = await buscarTR(m.ano, m.mes, dia);
 
     if (valor !== null) {
-      serie.push({
-        data: m.data,
-        valor,
-      });
+      serie.push({ data: m.data, valor });
+      periodosEncontrados.push(m.data);
+    } else {
+      periodosSemDados.push(m.data);
     }
   }
 
-  return serie;
+  return {
+    serie,
+    periodosEncontrados,
+    periodosSemDados,
+    periodosSolicitados: meses.map((m) => m.data),
+  };
+}
+
+export function obterUltimoAnoIGPM() {
+  return Math.max(...Object.keys(igpm).map(Number));
 }

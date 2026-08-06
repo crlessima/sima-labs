@@ -36,6 +36,13 @@ export interface ResultadoCalculo {
   valorAtualizado: number;
   memoriaIndices: MemoriaIndice[];
   memoriaJuros?: MemoriaJuros;
+
+  // novos campos para diagnóstico
+  erroIndice?: boolean;
+  indiceSelecionado?: TipoIndice;
+  periodosEncontrados?: string[];
+  periodosSemDados?: string[];
+  periodosSolicitados?: string[];
 }
 
 function calcularPeriodos(
@@ -63,9 +70,20 @@ async function calcularCorrecaoMonetaria(
   indice: TipoIndice,
   dataInicio: Date,
   dataFim: Date
-): Promise<{ valorCorrigido: number; memoriaIndices: MemoriaIndice[] }> {
+): Promise<{
+  valorCorrigido: number;
+  memoriaIndices: MemoriaIndice[];
+  periodosEncontrados: string[];
+  periodosSemDados: string[];
+  periodosSolicitados: string[];
+}> {
 
-  const serie = await obterSerieIndice(indice, dataInicio, dataFim);
+  const {
+    serie,
+    periodosEncontrados,
+    periodosSemDados,
+    periodosSolicitados
+  } = await obterSerieIndice(indice, dataInicio, dataFim);
 
   let fatorAcumulado = 1;
   const memoria: MemoriaIndice[] = [];
@@ -83,10 +101,14 @@ async function calcularCorrecaoMonetaria(
 
   const valorCorrigido = valorOriginal * fatorAcumulado;
 
-  return { valorCorrigido, memoriaIndices: memoria };
+  return {
+    valorCorrigido,
+    memoriaIndices: memoria,
+    periodosEncontrados,
+    periodosSemDados,
+    periodosSolicitados
+  };
 }
-
-
 
 function calcularJuros(
   valorBase: number,
@@ -131,12 +153,35 @@ export async function calcularAtualizacao(params: ParametrosCalculo): Promise<Re
 
   const fim = dataFim ?? new Date();
 
-  const { valorCorrigido, memoriaIndices } = await calcularCorrecaoMonetaria(
+  const {
+    valorCorrigido,
+    memoriaIndices,
+    periodosEncontrados,
+    periodosSemDados,
+    periodosSolicitados
+  } = await calcularCorrecaoMonetaria(
     valorOriginal,
     indice,
     dataInicio,
     fim
   );
+
+  // índice sem dados no período
+  if (periodosSemDados.length === periodosSolicitados.length) {
+    return {
+      valorOriginal,
+      valorCorrigido: valorOriginal, // sem correção
+      correcaoMonetaria: 0,
+      valorJuros: 0,
+      valorAtualizado: valorOriginal,
+      memoriaIndices: [],
+      erroIndice: true,
+      indiceSelecionado: indice,
+      periodosEncontrados,
+      periodosSemDados,
+      periodosSolicitados
+    };
+  }
 
   const correcaoMonetaria = valorCorrigido - valorOriginal;
 
@@ -165,6 +210,8 @@ export async function calcularAtualizacao(params: ParametrosCalculo): Promise<Re
     valorAtualizado,
     memoriaIndices,
     memoriaJuros,
+    periodosEncontrados,
+    periodosSemDados,
+    periodosSolicitados
   };
 }
-

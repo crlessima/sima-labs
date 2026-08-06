@@ -26,13 +26,15 @@ export default function Page() {
         </a>
       </section>
 	  
-	  {
-		  //plano === "free" && <Adsense />
-	  }
-      {
-		  //plano !== "premium" && <Adsense />
-	  }
-	  <Adsense />
+  	  {
+  		  //plano === "free" && <Adsense />
+  	  }
+        {
+  		  //plano !== "premium" && <Adsense />
+  	  }
+  	  <div className="my-6">
+        <Adsense />
+      </div>
 
       <section className="grid md:grid-cols-3 gap-6 py-10">
         <div className="bg-white shadow p-6 rounded">

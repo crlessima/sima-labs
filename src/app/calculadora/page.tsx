@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Container from "@/components/layout/Container";
+import { obterUltimoAnoIGPM } from "@/modules/finance/services/indicesService";
+
 import {
   calcularAtualizacao,
   PeriodicidadeJuros,
@@ -12,7 +14,7 @@ import {
 import { TipoIndice } from "@/modules/finance/services/indicesService";
 
 import { getPlano } from "@/modules/auth/planService";
-import Adsense from "@/components/ads/Adsense";
+// import Adsense from "@/components/ads/Adsense";
 
 export default function CalculadoraPage() {
   const [valor, setValor] = useState("");
@@ -48,8 +50,8 @@ export default function CalculadoraPage() {
 
     const res = await calcularAtualizacao(params);
     setResultado(res);
-  }
 
+  }
 
   return (
     <Container>
@@ -57,11 +59,11 @@ export default function CalculadoraPage() {
         <h1 className="text-2xl font-bold mb-4">
           Calculadora de Juros e Correção Monetária
         </h1>
-		
-		<div className="my-6">
-			<Adsense />
-		</div>
-		
+
+        {/* <div className="my-6">
+          <Adsense />
+        </div> */}
+
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-white shadow p-6 rounded space-y-4">
             <div>
@@ -115,9 +117,27 @@ export default function CalculadoraPage() {
                 <option value="IPCA">IPCA</option>
                 <option value="INPC">INPC</option>
                 <option value="IGPM">IGPM</option>
-                {/* adiciona outros se tiver no indicesService */}
+
+                {indice === "IGPM" && dataInicio && (() => {
+                  const anoInicio = new Date(dataInicio).getFullYear();
+                  const ultimoAnoIGPM = obterUltimoAnoIGPM();
+
+                  if (anoInicio > ultimoAnoIGPM) {
+                    return (
+                      <p className="mt-2 text-xs text-red-600">
+                        O IGPM não possui dados cadastrados para o ano {anoInicio}.  
+                        Último ano disponível: {ultimoAnoIGPM}.
+                      </p>
+                    );
+                  }
+                })()}
+              
+                <option value="SELIC">SELIC</option>
+                <option value="CDI">CDI</option>
+                <option value="TR">TR</option>
               </select>
-            </div>
+
+            </div>    
 
             <div className="flex items-center gap-2">
               <input
@@ -197,7 +217,31 @@ export default function CalculadoraPage() {
               </p>
             )}
 
-            {resultado && (
+            {resultado?.erroIndice && (
+              <div className="p-4 bg-red-100 border border-red-300 rounded text-red-700 mb-4">
+                <p className="font-semibold">
+                  O índice {resultado.indiceSelecionado} não possui dados para o período selecionado.
+                </p>
+
+                {resultado.periodosEncontrados.length > 0 ? (
+                  <p className="mt-2 text-sm">
+                    Dados disponíveis:{" "}
+                    <strong>{resultado.periodosEncontrados[0]}</strong> até{" "}
+                    <strong>{resultado.periodosEncontrados.at(-1)}</strong>.
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm">
+                    Este índice não possui dados em nenhum dos períodos solicitados.
+                  </p>
+                )}
+
+                <p className="mt-2 text-xs text-slate-600">
+                  Períodos solicitados: {resultado.periodosSolicitados.join(", ")}
+                </p>
+              </div>
+            )}
+
+            {resultado && !resultado.erroIndice && (
               <div className="space-y-4">
                 <h2 className="text-xl font-bold mb-2">
                   Resultado do cálculo
