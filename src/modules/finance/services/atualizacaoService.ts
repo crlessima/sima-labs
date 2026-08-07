@@ -23,7 +23,7 @@ export async function atualizarPorIPCA(valor: number, ano: string, mes: string) 
 }
 
 // Função nova (a que o módulo Contratos usa)
-export async function atualizarValorPorIndice(valor: number, ano: string, mes: string, dia?: string, indice: string) {
+export async function atualizarValorPorIndice(valor: number, ano: string, mes: string, dia: string, indice: string) {
     let percentual = null;
 
     switch (indice) {
